@@ -564,9 +564,154 @@ Defenses:
    PowerView
 
   
+Perfect! 🔥 Let’s move into **Expert-Level Active Directory Pentesting**. These are real-world scenarios, deep technical, often multi-step, and what interviewers ask to test full AD exploitation knowledge.
 
-🔥 That’s the Advanced AD Pentesting Set.
+---
 
-If you want, I can next provide:  
-✅ 10 Expert-Level Real-World AD Attack Scenarios  
-or a full AD Pentesting Interview Mock (Q&A style)
+# ✅ Expert AD Pentesting – 10 Questions & Answers / Scenarios
+
+---
+
+## **1. Domain Admin via ACL Abuse**
+
+**Question:**
+How can you escalate to Domain Admin by abusing misconfigured ACLs without knowing any passwords?
+
+**Answer:**
+
+* Use **BloodHound** to map `GenericAll` / `WriteDACL` permissions.
+* Identify users or computers with privilege to modify ACLs on Domain Admin accounts.
+* Modify ACLs to give yourself `GenericAll` → reset DA password → gain DA access.
+
+---
+
+## **2. Kerberoasting in Large Domains**
+
+**Question:**
+How do you efficiently perform Kerberoasting in a large enterprise environment?
+
+**Answer:**
+
+* Enumerate SPNs with **GetUserSPNs.py (Impacket)** or **PowerView**.
+* Request TGS for service accounts (offline crack).
+* Optimize cracking with **hashcat / John the Ripper** using custom wordlists and GPU acceleration.
+* Prioritize high-privilege SPNs (like admin services).
+
+---
+
+## **3. DCSync Stealth**
+
+**Question:**
+How would you perform a DCSync attack stealthily without alerting monitoring tools?
+
+**Answer:**
+
+* Only target specific users, not the entire domain.
+* Use **Impacket’s secretsdump.py --just-dc**
+* Time requests during low activity to avoid anomalies.
+* Avoid domain-wide replication enumeration; grab only high-value accounts.
+
+---
+
+## **4. Active Directory Certificate Services Abuse**
+
+**Question:**
+How can AD CS be abused to gain domain admin access?
+
+**Answer:**
+
+* Identify users who can enroll for certificates (ESC1–ESC8).
+* Request a certificate for a privileged account.
+* Use **Rubeus / Certipy** to request TGS using that cert.
+* Authenticate as DA without touching passwords.
+
+---
+
+## **5. Lateral Movement Using RBCD**
+
+**Question:**
+How do you perform lateral movement using Resource-Based Constrained Delegation?
+
+**Answer:**
+
+* Find a computer with `msDS-AllowedToActOnBehalfOfOtherIdentity` controlled by attacker.
+* Set the ACL to allow your machine to act as DA.
+* Impersonate DA via **DCSync / Kerberos tickets**.
+* Pivot to high-value machines.
+
+---
+
+## **6. Golden Ticket Persistence**
+
+**Question:**
+How do you maintain persistence with a Golden Ticket while avoiding detection?
+
+**Answer:**
+
+* Create a TGT with **KRBTGT hash**.
+* Limit lifetime (shorter than default) to avoid anomalies in logs.
+* Only use on high-value sessions, not every login.
+* Monitor logs for Kerberos anomalies before acting.
+
+---
+
+## **7. Cross-Forest Escalation**
+
+**Question:**
+How do you compromise a trusted forest from a lower-privileged domain?
+
+**Answer:**
+
+* Enumerate trusts (`nltest /domain_trusts`, BloodHound).
+* Target accounts with trust permissions.
+* Abuse SID History or Kerberos referrals.
+* Gain foothold in external forest and escalate privileges.
+
+---
+
+## **8. Detecting Unconstrained Delegation Abuse**
+
+**Question:**
+How do you exploit a host with unconstrained delegation enabled?
+
+**Answer:**
+
+* Capture Kerberos tickets of users connecting to that host.
+* Use **Mimikatz / Rubeus** to extract TGTs from memory.
+* Impersonate privileged users (including Domain Admin).
+* Pivot using tickets to other hosts.
+
+---
+
+## **9. Active Directory Shadow Credentials**
+
+**Question:**
+How can an attacker persist without touching normal user accounts?
+
+**Answer:**
+
+* Use **DCShadow attack** to push rogue objects into AD.
+* Modify GPOs, computer accounts, or ACLs to create hidden privileges.
+* Changes appear legitimate because DCShadow registers the attacker as a fake DC.
+
+---
+
+## **10. Full Domain Compromise Without Passwords**
+
+**Question:**
+Explain a multi-step attack path to full domain compromise without initially knowing any user passwords.
+
+**Answer:**
+
+1. **Recon:** Enumerate domain using LDAP queries (PowerView/BloodHound).
+2. **Privilege Mapping:** Identify ACL misconfigurations.
+3. **Kerberoasting:** Crack high-value service accounts.
+4. **DCSync / RBCD:** Escalate privileges.
+5. **Golden/Silver Tickets:** Maintain persistence.
+6. **Lateral Movement:** Use PsExec, WMI, WinRM, RDP.
+7. **Cleanup:** Remove traces from logs, ensure stealth.
+
+---
+
+
+
